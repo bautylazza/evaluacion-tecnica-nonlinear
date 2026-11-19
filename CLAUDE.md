@@ -40,7 +40,7 @@ El PDF del enunciado no se versiona (está en el `.gitignore`).
 - Mantener el código simple. Evitar la complejidad innecesaria.
 - Sin comentarios: el código se tiene que entender solo.
 - Identificadores en español, igual que el enunciado (`producto`, `stockActual`, `TipoMovimiento`).
-- Funciones de un solo propósito, con un máximo de 20 líneas y 3 parámetros.
+- Funciones de un solo propósito, con un máximo de 20 líneas y 3 parámetros. El límite de 20 líneas aplica solo al backend: en el frontend no se aplica, porque el JSX de un componente ocupa muchas líneas sin agregar lógica.
 - Nombres completamente descriptivos (`productoId`, no `pId`).
 - Evitar llamadas encadenadas largas y streams de varios pasos. Usar variables intermedias con nombre.
 - Errores logueados con SLF4J en el nivel adecuado. Nunca `printStackTrace()`.
@@ -203,19 +203,32 @@ Un `@RestControllerAdvice` (`GlobalExceptionHandler`) centraliza las respuestas 
 
 ## Frontend
 
-- Proyecto Vite + React + TypeScript en `frontend/`.
+- Proyecto Vite + React + TypeScript en `frontend/`, organizado por tipo de archivo:
+
+```
+frontend/src/
+├── App.tsx
+├── index.css
+├── api/          llamadas al backend
+├── components/   componentes que dibujan algo
+├── hooks/        custom hooks: lógica con estado que no dibuja nada
+└── types/        tipos de TypeScript
+```
 - Proxy de Vite: las rutas `/productos` y `/movimientos` se reenvían a `http://localhost:8080`. No hay configuración de CORS en el backend.
 - Un tipo `Producto` en TypeScript que refleja exactamente `ProductoResponse`.
+- Cliente HTTP: `fetch` nativo, en funciones de `src/api/`. Son dos llamadas y no hacen falta interceptores, así que una librería no aporta nada.
+- Estilos: un único archivo CSS plano (`src/index.css`), sin frameworks ni librerías de componentes. Son una pantalla y un modal.
 - El usuario usó poco TypeScript: explicarle cada tipo y cada parte no trivial al implementar.
+- Las explicaciones para estudiar se escriben en `NOTAS.md` (raíz, en el `.gitignore`, no se versiona).
 
 ### Pantalla de productos
 
 Una sola pantalla, con estos componentes:
 
-- **Alerta de stock bajo:** banner arriba de la pantalla. Se calcula sobre el listado completo (no sobre el filtrado), filtrando `stockBajo = true`. Muestra la cantidad de productos con stock bajo y la lista de cada uno con su stock actual y su mínimo, ordenada por gravedad (primero los más lejos de su mínimo). Cada producto tiene un botón que abre el formulario con el producto y el tipo `ENTRADA` preseleccionados. Si no hay productos con stock bajo, el banner no se muestra.
+- **Alerta de stock bajo:** banner arriba de la pantalla. Se calcula sobre el listado completo (no sobre el filtrado), filtrando `stockBajo = true`. Muestra la cantidad de productos con stock bajo y una tarjeta por producto, en una grilla que ocupa todo el ancho, con su stock actual y su mínimo, ordenadas por gravedad (primero los más lejos de su mínimo). Cada producto tiene un botón que abre el formulario con el producto y el tipo `ENTRADA` preseleccionados. Si no hay productos con stock bajo, el banner no se muestra.
 - **Filtro por categoría:** desplegable. Las categorías se derivan del listado completo (sin endpoint de categorías). Al elegir una, se llama a `GET /productos?categoria={id}`.
-- **Tabla:** columnas nombre, categoría, precio unitario, stock actual y stock mínimo. Sin id. Etiqueta roja "Stock bajo" junto al stock actual. Botón "Registrar movimiento" en cada fila, que abre el formulario con el producto preseleccionado.
-- **Gráfico:** barras horizontales con Recharts, una por producto, con el stock actual. Las barras de los productos con stock bajo van en rojo. Muestra los mismos productos que la tabla (respeta el filtro).
+- **Tabla:** columnas nombre, categoría, precio unitario, stock actual, stock mínimo y estado. Sin id. La etiqueta roja "Stock bajo" va en la columna estado, para que tenga su propio lugar y quede a continuación de los dos números que la explican. El filtro va a la izquierda, en una fila propia arriba de la tabla, dentro de su tarjeta. Botón "Registrar movimiento" en cada fila, que abre el formulario con el producto preseleccionado.
+- **Gráfico:** barras horizontales con Recharts, una por producto, con el stock actual, ordenadas de menor a mayor stock. Las barras de los productos con stock bajo van en rojo. El valor va escrito en la punta de cada barra, así que no hay tooltip. Muestra los mismos productos que la tabla (respeta el filtro).
 
 Flujo de datos: al abrir la pantalla se carga el listado completo (para la alerta y las categorías). Si hay un filtro activo, se carga además el listado filtrado (para la tabla y el gráfico). Después de registrar un movimiento, se recargan los dos.
 
@@ -254,12 +267,10 @@ Una rama por vez, en este orden:
 3. `feature/endpoint-productos`: `GET /productos` con repositorio, servicio, DTO, controller, manejo de errores y tests.
 4. `feature/frontend-productos`: alerta, filtro, tabla y gráfico.
 5. `feature/movimientos`: `POST /movimientos`, tests y formulario.
-6. `feature/documentacion`: completar el README con las instrucciones reales y revisar todas las respuestas.
+6. `feature/documentacion`: completar el README con las instrucciones reales, agregar capturas del frontend (en `docs/capturas/`: pantalla completa, pantalla filtrada y el modal, incluido el caso de stock insuficiente) y revisar todas las respuestas.
 
 ## Pendientes de decidir con el usuario
 
 Preguntar antes de implementar:
 
 - Cuerpo de la respuesta `201` de `POST /movimientos`, y cómo obtener la fecha que genera la base.
-- Cliente HTTP del frontend (`fetch` nativo o una librería).
-- Forma de manejar los estilos del frontend.
