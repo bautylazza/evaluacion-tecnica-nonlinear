@@ -14,6 +14,8 @@ import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 @Entity
 @Getter
@@ -34,6 +36,7 @@ public class Movimiento {
 
     private Integer cantidad;
 
+    @Generated(event = EventType.INSERT)
     @Column(insertable = false, updatable = false)
     private Instant fecha;
 
