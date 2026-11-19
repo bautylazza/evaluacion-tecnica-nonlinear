@@ -79,7 +79,10 @@ backend/src/main/resources/
 ### Configuración
 
 - `application.yml`: configuración común. `spring.jpa.hibernate.ddl-auto: validate`; el esquema lo maneja solo Flyway.
-- La conexión a la base se toma de las variables de entorno estándar de Spring: `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` y `SPRING_DATASOURCE_PASSWORD`. Ninguna credencial va en el repositorio.
+- `spring.jpa.open-in-view: false`: la sesión de Hibernate no se extiende al controller, así una relación `LAZY` no se carga sin que se note. La conversión a DTO se hace en el servicio.
+- La conexión a la base se define en `application.yml` con los placeholders `${SPRING_DATASOURCE_URL}`, `${SPRING_DATASOURCE_USERNAME}` y `${SPRING_DATASOURCE_PASSWORD}`. Ninguna credencial va en el repositorio.
+  - En local, los valores salen de `backend/.env` (en el `.gitignore`), importado con `spring.config.import: optional:file:.env[.properties]`. `backend/.env.example` se versiona como plantilla. No se usan variables de entorno del usuario de Windows porque las leería cualquier otro proyecto Spring Boot.
+  - En producción, los valores salen de variables de entorno reales; el `.env` no existe y el import es opcional.
 - `application-dev.yml`: muestra el SQL ejecutado (con `logging.level.org.hibernate.SQL: DEBUG`, para que pase por SLF4J) y agrega `classpath:db/seed` a las ubicaciones de Flyway, para cargar los datos de prueba solo en desarrollo.
 - Se ejecuta en local con `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`.
 
@@ -239,7 +242,7 @@ Los tests no se mencionan en el README.
 ## Git
 
 - Gitflow simplificado: `main` (versión entregada), `develop` (integración), `feature/*` (una rama por funcionalidad).
-- Cada `feature/*` se integra a `develop` con un Pull Request, usando commit de merge (sin squash). Al terminar, `develop` se integra a `main`.
+- Cada `feature/*` se integra a `develop` con un Pull Request, usando commit de merge (sin squash). Claude integra el PR cuando el usuario da el OK. Al terminar, `develop` se integra a `main`.
 - Conventional Commits con la descripción en español: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`. Ejemplo: `feat(productos): agregar endpoint GET /productos con filtro por categoría`.
 
 ## Plan de implementación
