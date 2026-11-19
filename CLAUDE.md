@@ -192,7 +192,7 @@ int sumarStock(@Param("id") Long id, @Param("cantidad") int cantidad);
 
 ### Manejo de errores
 
-Un `@RestControllerAdvice` (`GlobalExceptionHandler`) centraliza las respuestas de error:
+Un `@RestControllerAdvice` (`GlobalExceptionHandler`) centraliza las respuestas de error. El cuerpo es un `ProblemDetail` (RFC 9457) de Spring. El handler extiende `ResponseEntityExceptionHandler`, que ya responde 400 con `ProblemDetail` para los errores de request (cuerpo inválido, validación, parámetro de tipo incorrecto); solo se agregan los handlers propios:
 
 | Excepción | Código |
 |---|---|
@@ -260,7 +260,6 @@ Una rama por vez, en este orden:
 
 Preguntar antes de implementar:
 
-- Formato del cuerpo de las respuestas de error.
 - Cuerpo de la respuesta `201` de `POST /movimientos`, y cómo obtener la fecha que genera la base.
 - Cliente HTTP del frontend (`fetch` nativo o una librería).
 - Forma de manejar los estilos del frontend.
