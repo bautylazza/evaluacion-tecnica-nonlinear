@@ -20,12 +20,21 @@ export function AlertaStockBajo({ productos }: Props) {
 
   return (
     <section className="alerta">
-      <h2>{titulo}</h2>
-      <ul>
+      <h2 className="alerta-titulo">{titulo}</h2>
+      <ul className="alerta-productos">
         {productosConStockBajo.map((producto) => (
-          <li key={producto.id}>
+          <li key={producto.id} className="alerta-producto">
             <span className="alerta-nombre">{producto.nombre}</span>
-            <span>Stock {producto.stockActual} · mínimo {producto.stockMinimo}</span>
+            <div className="alerta-cifras">
+              <div>
+                <span className="alerta-rotulo">Stock</span>
+                <span className="alerta-valor alerta-valor-stock">{producto.stockActual}</span>
+              </div>
+              <div>
+                <span className="alerta-rotulo">Mínimo</span>
+                <span className="alerta-valor">{producto.stockMinimo}</span>
+              </div>
+            </div>
           </li>
         ))}
       </ul>

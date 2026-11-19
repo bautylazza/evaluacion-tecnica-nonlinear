@@ -13,9 +13,10 @@ export function TablaProductos({ productos }: Props) {
         <tr>
           <th>Nombre</th>
           <th>Categoría</th>
-          <th className="numero">Precio unitario</th>
-          <th className="numero">Stock actual</th>
-          <th className="numero">Stock mínimo</th>
+          <th className="numero columna-precio">Precio unitario</th>
+          <th className="numero columna-stock">Stock actual</th>
+          <th className="numero columna-stock">Stock mínimo</th>
+          <th className="columna-estado">Estado</th>
         </tr>
       </thead>
       <tbody>
@@ -24,11 +25,11 @@ export function TablaProductos({ productos }: Props) {
             <td>{producto.nombre}</td>
             <td>{producto.categoriaNombre}</td>
             <td className="numero">{formatoPrecio.format(producto.precioUnitario)}</td>
-            <td className="numero">
-              {producto.stockBajo && <span className="etiqueta-stock-bajo">Stock bajo</span>}
-              {producto.stockActual}
-            </td>
+            <td className="numero">{producto.stockActual}</td>
             <td className="numero">{producto.stockMinimo}</td>
+            <td className="columna-estado">
+              {producto.stockBajo && <span className="etiqueta-stock-bajo">Stock bajo</span>}
+            </td>
           </tr>
         ))}
       </tbody>
