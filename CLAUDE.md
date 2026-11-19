@@ -29,6 +29,7 @@ Todas las decisiones de este archivo ya fueron discutidas y aprobadas. No se rea
 ```
 backend/
 frontend/
+docs/capturas/   capturas de la interfaz usadas en el README
 CLAUDE.md
 README.md
 ```
