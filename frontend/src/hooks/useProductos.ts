@@ -7,6 +7,7 @@ const MENSAJE_ERROR_CARGA = 'No se pudieron cargar los productos. Verificá que 
 export function useProductos(categoriaId: number | null, habilitado: boolean) {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [numeroDeCarga, setNumeroDeCarga] = useState(0);
 
   useEffect(() => {
     if (!habilitado) {
@@ -15,7 +16,10 @@ export function useProductos(categoriaId: number | null, habilitado: boolean) {
     let respuestaVigente = true;
     obtenerProductos(categoriaId)
       .then((lista) => {
-        if (respuestaVigente) setProductos(lista);
+        if (respuestaVigente) {
+          setProductos(lista);
+          setError(null);
+        }
       })
       .catch((excepcion) => {
         console.error(excepcion);
@@ -24,7 +28,11 @@ export function useProductos(categoriaId: number | null, habilitado: boolean) {
     return () => {
       respuestaVigente = false;
     };
-  }, [categoriaId, habilitado]);
+  }, [categoriaId, habilitado, numeroDeCarga]);
 
-  return { productos, error };
+  function recargar() {
+    setNumeroDeCarga((anterior) => anterior + 1);
+  }
+
+  return { productos, error, recargar };
 }
