@@ -35,25 +35,25 @@ export function GraficoStock({ productos }: Props) {
   const alto = productos.length * ALTO_POR_PRODUCTO + ALTO_EJE;
 
   return (
-    <section className="tarjeta">
-      <div className="tarjeta-encabezado">
-        <h2>Stock actual por producto</h2>
-        <div className="leyenda">
+    <section className="seccion">
+      <h2>Stock actual por producto</h2>
+      <div className="tarjeta">
+        <div className="barra-tarjeta leyenda">
           <span><span className="muestra" style={{ backgroundColor: COLOR_STOCK_NORMAL }} />Stock normal</span>
           <span><span className="muestra" style={{ backgroundColor: COLOR_STOCK_BAJO }} />Stock bajo</span>
         </div>
-      </div>
-      <div className="grafico-cuerpo">
-        <ResponsiveContainer width="100%" height={alto}>
-          <BarChart data={productosOrdenados} layout="vertical" margin={{ right: 40 }}>
-            <CartesianGrid horizontal={false} stroke={COLOR_GRILLA} />
-            <XAxis type="number" allowDecimals={false} tick={ESTILO_EJE} stroke={COLOR_GRILLA} tickLine={false} />
-            <YAxis type="category" dataKey="nombre" width={180} tick={ESTILO_EJE} stroke={COLOR_GRILLA} tickLine={false} />
-            <Bar dataKey="stockActual" barSize={24} radius={[0, 4, 4, 0]} shape={BarraProducto}>
-              <LabelList dataKey="stockActual" position="right" fill={COLOR_TEXTO} fontSize={13} />
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        <div className="grafico-cuerpo">
+          <ResponsiveContainer width="100%" height={alto}>
+            <BarChart data={productosOrdenados} layout="vertical" margin={{ right: 40 }}>
+              <CartesianGrid horizontal={false} stroke={COLOR_GRILLA} />
+              <XAxis type="number" allowDecimals={false} tick={ESTILO_EJE} stroke={COLOR_GRILLA} tickLine={false} />
+              <YAxis type="category" dataKey="nombre" width={180} tick={ESTILO_EJE} stroke={COLOR_GRILLA} tickLine={false} />
+              <Bar dataKey="stockActual" barSize={24} radius={[0, 4, 4, 0]} shape={BarraProducto}>
+                <LabelList dataKey="stockActual" position="right" fill={COLOR_TEXTO} fontSize={13} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </section>
   );
