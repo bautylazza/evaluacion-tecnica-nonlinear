@@ -206,7 +206,10 @@ Un `@RestControllerAdvice` (`GlobalExceptionHandler`) centraliza las respuestas 
 - Proyecto Vite + React + TypeScript en `frontend/`.
 - Proxy de Vite: las rutas `/productos` y `/movimientos` se reenvían a `http://localhost:8080`. No hay configuración de CORS en el backend.
 - Un tipo `Producto` en TypeScript que refleja exactamente `ProductoResponse`.
+- Cliente HTTP: `fetch` nativo, en funciones de `src/api/`. Son dos llamadas y no hacen falta interceptores, así que una librería no aporta nada.
+- Estilos: un único archivo CSS plano (`src/index.css`), sin frameworks ni librerías de componentes. Son una pantalla y un modal.
 - El usuario usó poco TypeScript: explicarle cada tipo y cada parte no trivial al implementar.
+- Las explicaciones para estudiar se escriben en `NOTAS.md` (raíz, en el `.gitignore`, no se versiona).
 
 ### Pantalla de productos
 
@@ -261,5 +264,3 @@ Una rama por vez, en este orden:
 Preguntar antes de implementar:
 
 - Cuerpo de la respuesta `201` de `POST /movimientos`, y cómo obtener la fecha que genera la base.
-- Cliente HTTP del frontend (`fetch` nativo o una librería).
-- Forma de manejar los estilos del frontend.
