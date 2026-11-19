@@ -2,13 +2,14 @@ import type { Producto } from '../types/Producto';
 
 type Props = {
   productos: Producto[];
+  onRegistrarEntrada: (productoId: number) => void;
 };
 
 function unidadesFaltantes(producto: Producto): number {
   return producto.stockMinimo - producto.stockActual;
 }
 
-export function AlertaStockBajo({ productos }: Props) {
+export function AlertaStockBajo({ productos, onRegistrarEntrada }: Props) {
   const productosConStockBajo = productos.filter((producto) => producto.stockBajo);
   if (productosConStockBajo.length === 0) {
     return null;
@@ -35,6 +36,9 @@ export function AlertaStockBajo({ productos }: Props) {
                 <span className="alerta-valor">{producto.stockMinimo}</span>
               </div>
             </div>
+            <button type="button" className="boton boton-secundario boton-chico" onClick={() => onRegistrarEntrada(producto.id)}>
+              Registrar entrada
+            </button>
           </li>
         ))}
       </ul>
