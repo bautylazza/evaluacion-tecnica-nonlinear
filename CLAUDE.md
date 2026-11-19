@@ -189,6 +189,8 @@ int sumarStock(@Param("id") Long id, @Param("cantidad") int cantidad);
 
 - Logs: `INFO` al registrar un movimiento, `WARN` al rechazar por stock insuficiente.
 - Respuestas: `201` registrado, `409` stock insuficiente, `400` datos inválidos, `404` producto inexistente.
+- El `201` devuelve el movimiento creado, como `MovimientoResponse` (record con `from(Movimiento)`): `id`, `productoId`, `tipo`, `cantidad`, `fecha`, `motivo`, `usuario`.
+- La `fecha` generada por la base se lee con `@Generated(event = EventType.INSERT)` de Hibernate en el campo, además de `insertable = false, updatable = false`. Hibernate la recupera al insertar, sin una consulta extra.
 
 ### Manejo de errores
 
@@ -235,7 +237,7 @@ Flujo de datos: al abrir la pantalla se carga el listado completo (para la alert
 ### Formulario de movimiento
 
 - Ventana modal sobre la tabla.
-- Campos: producto (desplegable, preseleccionable), tipo (dos opciones visibles: Entrada / Salida), cantidad (entero mayor a 0), motivo (texto opcional), usuario (texto obligatorio). Sin fecha.
+- Campos: producto (desplegable, preseleccionable), tipo (dos opciones visibles: Entrada / Salida; arranca siempre en Entrada, se abra desde la alerta o desde la tabla), cantidad (entero mayor a 0), motivo (texto opcional), usuario (texto obligatorio). Sin fecha.
 - Debajo de la cantidad: "Stock actual: X → quedará en Y".
 - Si el tipo es Salida y la cantidad supera el stock actual: mensaje debajo de la cantidad ("Stock insuficiente: hay X unidades"), vista previa en rojo y botón de enviar deshabilitado.
 - Botones abajo a la derecha: "Cancelar" (secundario) y a su derecha el principal, que dice "Registrar entrada" o "Registrar salida" según el tipo. Sin ventana de confirmación extra.
@@ -268,9 +270,3 @@ Una rama por vez, en este orden:
 4. `feature/frontend-productos`: alerta, filtro, tabla y gráfico.
 5. `feature/movimientos`: `POST /movimientos`, tests y formulario.
 6. `feature/documentacion`: completar el README con las instrucciones reales, agregar capturas del frontend (en `docs/capturas/`: pantalla completa, pantalla filtrada y el modal, incluido el caso de stock insuficiente) y revisar todas las respuestas.
-
-## Pendientes de decidir con el usuario
-
-Preguntar antes de implementar:
-
-- Cuerpo de la respuesta `201` de `POST /movimientos`, y cómo obtener la fecha que genera la base.
