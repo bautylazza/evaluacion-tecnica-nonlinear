@@ -218,7 +218,7 @@ Una sola pantalla, con estos componentes:
 - **Alerta de stock bajo:** banner arriba de la pantalla. Se calcula sobre el listado completo (no sobre el filtrado), filtrando `stockBajo = true`. Muestra la cantidad de productos con stock bajo y la lista de cada uno con su stock actual y su mínimo, ordenada por gravedad (primero los más lejos de su mínimo). Cada producto tiene un botón que abre el formulario con el producto y el tipo `ENTRADA` preseleccionados. Si no hay productos con stock bajo, el banner no se muestra.
 - **Filtro por categoría:** desplegable. Las categorías se derivan del listado completo (sin endpoint de categorías). Al elegir una, se llama a `GET /productos?categoria={id}`.
 - **Tabla:** columnas nombre, categoría, precio unitario, stock actual y stock mínimo. Sin id. Etiqueta roja "Stock bajo" junto al stock actual. Botón "Registrar movimiento" en cada fila, que abre el formulario con el producto preseleccionado.
-- **Gráfico:** barras horizontales con Recharts, una por producto, con el stock actual. Las barras de los productos con stock bajo van en rojo. Muestra los mismos productos que la tabla (respeta el filtro).
+- **Gráfico:** barras horizontales con Recharts, una por producto, con el stock actual, ordenadas de menor a mayor stock. Las barras de los productos con stock bajo van en rojo. El valor va escrito en la punta de cada barra, así que no hay tooltip. Muestra los mismos productos que la tabla (respeta el filtro).
 
 Flujo de datos: al abrir la pantalla se carga el listado completo (para la alerta y las categorías). Si hay un filtro activo, se carga además el listado filtrado (para la tabla y el gráfico). Después de registrar un movimiento, se recargan los dos.
 
@@ -257,7 +257,7 @@ Una rama por vez, en este orden:
 3. `feature/endpoint-productos`: `GET /productos` con repositorio, servicio, DTO, controller, manejo de errores y tests.
 4. `feature/frontend-productos`: alerta, filtro, tabla y gráfico.
 5. `feature/movimientos`: `POST /movimientos`, tests y formulario.
-6. `feature/documentacion`: completar el README con las instrucciones reales y revisar todas las respuestas.
+6. `feature/documentacion`: completar el README con las instrucciones reales, agregar capturas del frontend (en `docs/capturas/`: pantalla completa, pantalla filtrada y el modal, incluido el caso de stock insuficiente) y revisar todas las respuestas.
 
 ## Pendientes de decidir con el usuario
 
