@@ -106,7 +106,7 @@ Responde `201` con el movimiento creado, incluida la fecha que registra la base:
 }
 ```
 
-Los errores se devuelven en formato [ProblemDetail](https://www.rfc-editor.org/rfc/rfc9457), con el motivo en el campo `detail`.
+Los errores se devuelven en formato [ProblemDetail](https://www.rfc-editor.org/rfc/rfc9457). En los errores de negocio (404 y 409), el campo `detail` explica el motivo.
 
 ## Capturas
 
@@ -200,7 +200,9 @@ Lo garantizo en tres capas. En la base de datos, una restricción `CHECK` impide
 
 Uso Flyway para las migraciones y JPA con Hibernate como ORM, y cada uno tiene una responsabilidad distinta. Flyway es el dueño del esquema: los cambios en la base se escriben como archivos SQL numerados, versionados en Git junto con el código, y se aplican automáticamente al arrancar la aplicación, así la base queda igual en cualquier entorno. Hibernate está configurado para no crear ni modificar tablas, solo valida al arrancar que las entidades coincidan con el esquema.
 
-Dentro de la arquitectura, JPA solo se usa en la capa de repositorios. Los servicios trabajan con los repositorios y definen las transacciones, y los controllers nunca acceden a la base. Para las consultas que el ORM no resuelve bien, como el descuento de stock con un UPDATE condicional, escribo la consulta a mano dentro del repositorio, y lo mismo haría con el cálculo del stock histórico. No usé un cliente SQL directo porque en este sistema no hace falta. Lo usaría para reportes pesados o cargas masivas, donde mapear cada fila a una entidad no aporta nada.
+Dentro de la arquitectura, JPA solo se usa en la capa de repositorios. Los servicios trabajan con los repositorios y definen las transacciones, y los controllers nunca acceden a la base. Por eso desactivé `open-in-view`, una opción que Spring trae activada y que mantiene abierta la sesión de Hibernate hasta que termina la respuesta HTTP: así una relación `LAZY` se puede cargar desde el controller sin que se note, que es una de las formas en que aparece el problema N+1. Con la opción desactivada, todo lo que se lee de la base se resuelve en el servicio.
+
+Para las consultas que el ORM no resuelve bien, como el descuento de stock con un UPDATE condicional, escribo la consulta a mano dentro del repositorio, y lo mismo haría con el cálculo del stock histórico. No usé un cliente SQL directo porque en este sistema no hace falta. Lo usaría para reportes pesados o cargas masivas, donde mapear cada fila a una entidad no aporta nada.
 
 ### 1.2 Historial de cambios
 
@@ -247,17 +249,17 @@ Para un sistema de este tamaño la organización por capas es la más clara. Si 
 
 **¿Dónde configurarías las reglas de negocio?**
 
-Las reglas fijas, como que el stock no puede quedar negativo o los tipos de movimiento válidos, van en el código: en la capa de servicio y en un enum, reforzadas por las restricciones de la base. Los valores que pueden cambiar, como el umbral de stock bajo, van fuera del código para poder ajustarlos sin modificar el sistema. En este caso, cada producto tiene su propio stock mínimo guardado en la base, que se puede cambiar sin tocar el código ni volver a deployar.
+Las reglas fijas, como que el stock no puede quedar negativo o los tipos de movimiento válidos, van en el código: en la capa de servicio y en un enum, reforzadas por las restricciones de la base. Los valores que pueden cambiar, como el umbral de stock bajo, van fuera del código para poder ajustarlos sin modificar el sistema. En este caso, cada producto tiene su propio stock mínimo guardado en la base, que se puede cambiar sin tocar el código ni volver a desplegar.
 
 ### 2.2 Deploy
 
 **¿Cómo deployarías este sistema?**
 
-Deployaría el backend y la base de datos en Railway, y el frontend en Vercel, como ya hice en otro proyecto. En ambas plataformas el deploy se hace conectando el repositorio: cada vez que se integran cambios en la rama principal, la plataforma construye y publica la nueva versión automáticamente. Railway también provee la base PostgreSQL administrada, así no hay que encargarse de servidores, backups ni actualizaciones. Para un sistema de este tamaño es la opción más simple. Si creciera y necesitara más control sobre la infraestructura, empaquetaría la aplicación en una imagen Docker para poder llevarla a cualquier proveedor.
+Desplegaría el backend y la base de datos en Railway, y el frontend en Vercel, como ya hice en otro proyecto. En ambas plataformas el despliegue se hace conectando el repositorio: cada vez que se integran cambios en la rama principal, la plataforma construye y publica la nueva versión automáticamente. Railway también provee la base PostgreSQL administrada, así no hay que encargarse de servidores, backups ni actualizaciones. Para un sistema de este tamaño es la opción más simple. Si creciera y necesitara más control sobre la infraestructura, empaquetaría la aplicación en una imagen Docker para poder llevarla a cualquier proveedor.
 
 **¿Cómo manejarías las diferencias entre entorno local y producción?**
 
-Con perfiles de Spring: un archivo de configuración común y uno por entorno con lo que cambia, por ejemplo mostrar las consultas SQL solo en local. Los datos sensibles, como la conexión y las credenciales de la base, no están en el repositorio: en local se leen de un archivo `.env` que no se versiona (el repositorio incluye un `.env.example` como plantilla), y en producción de variables de entorno configuradas en Railway. Usé un archivo y no variables de entorno del sistema porque estas últimas las leería cualquier otro proyecto Spring Boot de la máquina. En el frontend, en local Vite reenvía las llamadas al backend con un proxy; en producción, la URL de la API se definiría como variable de entorno en Vercel. El esquema de la base es el mismo en todos lados porque se crea con las mismas migraciones de Flyway, y en local uso la misma versión de PostgreSQL que en producción.
+Con perfiles de Spring: un archivo de configuración común y uno por entorno con lo que cambia, por ejemplo mostrar las consultas SQL solo en local. Los datos sensibles, como la conexión y las credenciales de la base, no están en el repositorio: en local se leen de un archivo `.env` que no se versiona (el repositorio incluye un `.env.example` como plantilla), y en producción de variables de entorno configuradas en Railway. Usé un archivo y no variables de entorno del sistema porque estas últimas las leería cualquier otro proyecto Spring Boot de la máquina. En el frontend, durante el desarrollo Vite reenvía las llamadas al backend con un proxy; en producción, la URL de la API se definiría como variable de entorno en Vercel. El esquema de la base es el mismo en todos lados porque se crea con las mismas migraciones de Flyway, y en local usaría la misma versión de PostgreSQL que en producción.
 
 ### 2.3 Seguridad: roles, perfiles y contraseñas
 
@@ -283,7 +285,7 @@ Registraría los errores inesperados con el detalle de la excepción como ERROR;
 
 **¿Dónde guardarías esos logs y con qué herramienta?**
 
-Usaría SLF4J con Logback, que es lo que trae Spring Boot, escribiendo en la consola. Railway captura esa salida y permite verla y filtrarla desde su panel, así no hace falta instalar nada más. No usaría archivos locales, porque en Railway se pierden con cada deploy, ni la base de datos, porque los logs generan mucho volumen y no son datos de negocio. Si el sistema creciera y se necesitara buscar en los logs o recibir alertas, los enviaría a un servicio externo como Grafana con Loki.
+Usaría SLF4J con Logback, que es lo que trae Spring Boot, escribiendo en la consola. Railway captura esa salida y permite verla y filtrarla desde su panel, así no hace falta instalar nada más. No usaría archivos locales, porque en Railway se pierden con cada despliegue, ni la base de datos, porque los logs generan mucho volumen y no son datos de negocio. Si el sistema creciera y se necesitara buscar en los logs o recibir alertas, los enviaría a un servicio externo como Grafana con Loki.
 
 **¿Cómo diferenciarías los logs de aplicación de la auditoría de negocio?**
 
@@ -303,7 +305,7 @@ Registra una entrada o una salida de stock. Primero verifica que el producto exi
 
 Responde 201 con el movimiento creado, incluida la fecha que registró la base, que Hibernate lee en la misma sentencia del INSERT, sin una consulta extra. Responde 409 si una salida supera el stock disponible, 400 si los datos son inválidos y 404 si el producto no existe.
 
-Todos los errores de la API se devuelven en formato ProblemDetail (RFC 9457), el estándar que trae Spring, con el motivo en el campo `detail`. Así el frontend muestra el mensaje del backend sin tener que interpretar distintos formatos.
+Todos los errores de la API se devuelven en formato ProblemDetail, el estándar RFC 9457 que Spring ya implementa. En los errores de negocio (404 y 409), el campo `detail` explica el motivo, y el frontend muestra ese mensaje sin tener que interpretar distintos formatos.
 
 ## 3. Frontend
 
@@ -323,6 +325,12 @@ Elegiría **React**. Es un sistema que van a usar varias personas todos los día
 - **Con React:** velocidad. Hay que escribir más código y armar más configuración para llegar al mismo resultado.
 - **Con Streamlit:** control sobre el diseño y la experiencia de uso, y se vuelve limitado cuando la aplicación tiene mucha interacción o muchos usuarios. En este caso además sumaría Python solo para la interfaz, porque el backend es Java.
 
+**Decisiones de implementación**
+
+Para las llamadas al backend usé `fetch`, la función estándar del navegador, en lugar de una librería como axios. La aplicación hace dos llamadas y no tiene autenticación, así que las ventajas de axios, como los interceptores para agregar un token a cada petición, no se aprovecharían. Las llamadas están aisladas en una carpeta propia, con manejo de errores y tipos, así que cambiar a axios más adelante tocaría solo esa carpeta.
+
+Para los estilos usé un único archivo CSS, sin frameworks ni librerías de componentes. Son una pantalla y un modal: un framework resuelve problemas que aparecen con muchas pantallas y muchos desarrolladores, y acá solo agregaría configuración y dependencias. Si la aplicación creciera, el siguiente paso serían los CSS Modules, que Vite soporta sin instalar nada y evitan que los estilos de un componente afecten a otro.
+
 ### 3.2 Pantallas
 
 #### Vista de tabla de productos
@@ -337,7 +345,7 @@ Con una etiqueta roja que dice "Stock bajo" en la columna de estado, a continuac
 
 **¿Qué acciones tendría esa vista?**
 
-Filtrar por categoría, con el filtro arriba de la tabla, y registrar un movimiento desde cada fila, con el producto ya seleccionado, que es la acción más frecuente. En el diseño completo también estarían editar el producto, solo para administradores, y ver el historial de movimientos. Las acciones se muestran según el rol del usuario.
+Filtrar por categoría, con el filtro arriba de la tabla, y registrar un movimiento desde cada fila, con el producto ya seleccionado, que es la acción más frecuente. En el diseño completo también estarían editar el producto, solo para administradores, y ver el historial de movimientos. Las acciones se mostrarían según el rol del usuario.
 
 **¿Qué gráfico elegirías y por qué?**
 
@@ -349,7 +357,7 @@ La alerta es un banner en la parte superior de la pantalla de productos, con un 
 
 **¿Cómo definirías el umbral de stock bajo?**
 
-Lo definiría por producto, porque lo que es poco stock depende de cada uno: cinco notebooks pueden alcanzar para una semana, mientras que cinco tornillos no alcanzan para nada. Un umbral fijo no sirve con productos tan distintos, y uno por categoría tiene el mismo problema dentro de cada categoría.
+Lo definiría por producto, porque lo que es poco stock depende de cada uno: cinco notebooks pueden alcanzar para una semana, mientras que cinco tornillos no alcanzan para nada. Un umbral fijo no sirve con productos tan distintos, y uno por categoría tiene el mismo problema dentro de cada categoría. Un producto tiene stock bajo cuando su stock actual es menor o igual a su mínimo: llegar al mínimo ya es momento de reponer.
 
 **¿Qué cambios necesitaría el modelo de datos?**
 
@@ -363,7 +371,7 @@ La principal es mostrar un único resumen en lugar de una alerta por producto, y
 
 **¿Qué campos incluís?**
 
-Producto, tipo, cantidad, motivo y usuario. Todos son obligatorios salvo el motivo, y se marcan con un asterisco. El producto viene preseleccionado cuando el formulario se abre desde una fila de la tabla o desde la alerta. El tipo se elige entre dos opciones visibles, entrada o salida, porque con solo dos opciones es más rápido verlas que abrir una lista; arranca siempre en entrada, porque una entrada registrada por error no descuenta stock, y una salida sí. La cantidad es un entero mayor a cero y el motivo es opcional. El usuario se completa a mano porque el sistema no tiene autenticación; con autenticación se tomaría del usuario logueado. La fecha no está en el formulario porque la registra la base de datos al guardar, así no se puede cargar una fecha falsa. Debajo de la cantidad se muestra el stock actual y cómo queda después del movimiento, para que el usuario vea el efecto antes de confirmar.
+Producto, tipo, cantidad, motivo y usuario. Todos son obligatorios salvo el motivo, y se marcan con un asterisco. El producto viene preseleccionado cuando el formulario se abre desde una fila de la tabla o desde la alerta. El tipo se elige entre dos opciones visibles, entrada o salida, porque con solo dos opciones es más rápido verlas que abrir una lista; arranca siempre en entrada, porque una entrada registrada por error no descuenta stock, y una salida sí. La cantidad es un entero mayor a cero. El usuario se completa a mano porque el sistema no tiene autenticación; con autenticación se tomaría del usuario logueado. La fecha no está en el formulario porque la registra la base de datos al guardar, así no se puede cargar una fecha falsa. Debajo de la cantidad se muestra el stock actual y cómo queda después del movimiento, para que el usuario vea el efecto antes de confirmar.
 
 **¿Cómo validás que no quede stock negativo antes de enviar?**
 
