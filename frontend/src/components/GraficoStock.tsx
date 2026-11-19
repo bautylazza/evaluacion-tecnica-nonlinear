@@ -33,7 +33,7 @@ export function GraficoStock({ productos }: Props) {
   const alto = productos.length * ALTO_POR_PRODUCTO + ALTO_EJE;
 
   return (
-    <section className="grafico">
+    <section>
       <h2>Stock actual por producto</h2>
       <div className="leyenda">
         <span><span className="muestra" style={{ backgroundColor: COLOR_STOCK_NORMAL }} />Stock normal</span>
