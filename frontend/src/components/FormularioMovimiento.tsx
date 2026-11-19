@@ -75,10 +75,13 @@ export function FormularioMovimiento({
     <div className="modal-fondo">
       <div className="modal" role="dialog" aria-modal="true" aria-labelledby="titulo-formulario">
         <h2 id="titulo-formulario">Registrar movimiento</h2>
+        <p className="aclaracion-obligatorios">
+          Los campos con <span className="obligatorio">*</span> son obligatorios.
+        </p>
         <form onSubmit={manejarEnvio}>
           <label className="campo">
-            Producto
-            <select value={productoId} onChange={(evento) => setProductoId(Number(evento.target.value))}>
+            <span>Producto <span className="obligatorio" aria-hidden="true">*</span></span>
+            <select required value={productoId} onChange={(evento) => setProductoId(Number(evento.target.value))}>
               {productos.map((opcion) => (
                 <option key={opcion.id} value={opcion.id}>{opcion.nombre}</option>
               ))}
@@ -86,7 +89,7 @@ export function FormularioMovimiento({
           </label>
 
           <fieldset className="campo selector-tipo">
-            <legend>Tipo</legend>
+            <legend>Tipo <span className="obligatorio" aria-hidden="true">*</span></legend>
             <label>
               <input type="radio" name="tipo" checked={tipo === 'ENTRADA'} onChange={() => setTipo('ENTRADA')} />
               Entrada
@@ -98,8 +101,8 @@ export function FormularioMovimiento({
           </fieldset>
 
           <label className="campo">
-            Cantidad
-            <input type="number" min="1" step="1" value={cantidad} onChange={(evento) => setCantidad(evento.target.value)} />
+            <span>Cantidad <span className="obligatorio" aria-hidden="true">*</span></span>
+            <input required type="number" min="1" step="1" value={cantidad} onChange={(evento) => setCantidad(evento.target.value)} />
           </label>
           {producto && (
             <p className={stockInsuficiente ? 'vista-previa vista-previa-error' : 'vista-previa'}>
@@ -112,13 +115,13 @@ export function FormularioMovimiento({
           )}
 
           <label className="campo">
-            <span>Motivo <span className="campo-opcional">(opcional)</span></span>
+            Motivo
             <input type="text" maxLength={255} value={motivo} onChange={(evento) => setMotivo(evento.target.value)} />
           </label>
 
           <label className="campo">
-            Usuario
-            <input type="text" maxLength={100} value={usuario} onChange={(evento) => setUsuario(evento.target.value)} />
+            <span>Usuario <span className="obligatorio" aria-hidden="true">*</span></span>
+            <input required type="text" maxLength={100} value={usuario} onChange={(evento) => setUsuario(evento.target.value)} />
           </label>
 
           {errorEnvio && <p className="error">{errorEnvio}</p>}
