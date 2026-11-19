@@ -5,7 +5,6 @@ import {
   LabelList,
   Rectangle,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -30,6 +29,7 @@ function BarraProducto(props: BarShapeProps) {
 }
 
 export function GraficoStock({ productos }: Props) {
+  const productosOrdenados = [...productos].sort((a, b) => a.stockActual - b.stockActual);
   const alto = productos.length * ALTO_POR_PRODUCTO + ALTO_EJE;
 
   return (
@@ -40,11 +40,10 @@ export function GraficoStock({ productos }: Props) {
         <span><span className="muestra" style={{ backgroundColor: COLOR_STOCK_BAJO }} />Stock bajo</span>
       </div>
       <ResponsiveContainer width="100%" height={alto}>
-        <BarChart data={productos} layout="vertical" margin={{ right: 40 }}>
+        <BarChart data={productosOrdenados} layout="vertical" margin={{ right: 40 }}>
           <CartesianGrid horizontal={false} stroke={COLOR_GRILLA} />
           <XAxis type="number" allowDecimals={false} />
           <YAxis type="category" dataKey="nombre" width={180} />
-          <Tooltip formatter={(valor) => [valor, 'Stock actual']} />
           <Bar dataKey="stockActual" barSize={24} radius={[0, 4, 4, 0]} shape={BarraProducto}>
             <LabelList dataKey="stockActual" position="right" fill={COLOR_TEXTO} />
           </Bar>
