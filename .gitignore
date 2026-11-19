@@ -1,0 +1,4 @@
+*.pdf
+.claude/settings.local.json
+.vscode/
+.idea/
