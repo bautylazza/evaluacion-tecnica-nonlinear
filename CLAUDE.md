@@ -40,7 +40,7 @@ El PDF del enunciado no se versiona (está en el `.gitignore`).
 - Mantener el código simple. Evitar la complejidad innecesaria.
 - Sin comentarios: el código se tiene que entender solo.
 - Identificadores en español, igual que el enunciado (`producto`, `stockActual`, `TipoMovimiento`).
-- Funciones de un solo propósito, con un máximo de 20 líneas y 3 parámetros.
+- Funciones de un solo propósito, con un máximo de 20 líneas y 3 parámetros. El límite de 20 líneas aplica solo al backend: en el frontend no se aplica, porque el JSX de un componente ocupa muchas líneas sin agregar lógica.
 - Nombres completamente descriptivos (`productoId`, no `pId`).
 - Evitar llamadas encadenadas largas y streams de varios pasos. Usar variables intermedias con nombre.
 - Errores logueados con SLF4J en el nivel adecuado. Nunca `printStackTrace()`.
