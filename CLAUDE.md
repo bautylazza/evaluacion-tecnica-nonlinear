@@ -229,7 +229,7 @@ Una sola pantalla, con estos componentes:
 
 - **Alerta de stock bajo:** banner arriba de la pantalla. Se calcula sobre el listado completo (no sobre el filtrado), filtrando `stockBajo = true`. Muestra la cantidad de productos con stock bajo y una tarjeta por producto, en una grilla que ocupa todo el ancho, con su stock actual y su mínimo, ordenadas por gravedad (primero los más lejos de su mínimo). Cada producto tiene un botón que abre el formulario con el producto y el tipo `ENTRADA` preseleccionados. Si no hay productos con stock bajo, el banner no se muestra.
 - **Filtro por categoría:** desplegable. Las categorías se derivan del listado completo (sin endpoint de categorías). Al elegir una, se llama a `GET /productos?categoria={id}`.
-- **Tabla:** columnas nombre, categoría, precio unitario, stock actual, stock mínimo y estado. Sin id. La etiqueta roja "Stock bajo" va en la columna estado, para que tenga su propio lugar y quede a continuación de los dos números que la explican. El filtro va a la izquierda, en una fila propia arriba de la tabla, dentro de su tarjeta. Botón "Registrar movimiento" en cada fila, que abre el formulario con el producto preseleccionado.
+- **Tabla:** columnas nombre, categoría, precio unitario, stock actual, stock mínimo y estado. Sin id. La etiqueta roja "Stock bajo" va en la columna estado, para que tenga su propio lugar y quede a continuación de los dos números que la explican. El filtro va a la izquierda, en una fila propia arriba de la tabla, dentro de su tarjeta. Los títulos de sección ("Productos", "Stock actual por producto") van fuera de las tarjetas; cada tarjeta arranca con su fila de herramientas (el filtro en la tabla, la leyenda en el gráfico). Botón "Registrar movimiento" en cada fila, que abre el formulario con el producto preseleccionado.
 - **Gráfico:** barras horizontales con Recharts, una por producto, con el stock actual, ordenadas de menor a mayor stock. Las barras de los productos con stock bajo van en rojo. El valor va escrito en la punta de cada barra, así que no hay tooltip. Muestra los mismos productos que la tabla (respeta el filtro).
 
 Flujo de datos: al abrir la pantalla se carga el listado completo (para la alerta y las categorías). Si hay un filtro activo, se carga además el listado filtrado (para la tabla y el gráfico). Después de registrar un movimiento, se recargan los dos.
@@ -238,6 +238,7 @@ Flujo de datos: al abrir la pantalla se carga el listado completo (para la alert
 
 - Ventana modal sobre la tabla.
 - Campos: producto (desplegable, preseleccionable), tipo (dos opciones visibles: Entrada / Salida; arranca siempre en Entrada, se abra desde la alerta o desde la tabla), cantidad (entero mayor a 0), motivo (texto opcional), usuario (texto obligatorio). Sin fecha.
+- Los campos obligatorios llevan un asterisco rojo y el atributo `required`, con la aclaración "Los campos con * son obligatorios" debajo del título.
 - Debajo de la cantidad: "Stock actual: X → quedará en Y".
 - Si el tipo es Salida y la cantidad supera el stock actual: mensaje debajo de la cantidad ("Stock insuficiente: hay X unidades"), vista previa en rojo y botón de enviar deshabilitado.
 - Botones abajo a la derecha: "Cancelar" (secundario) y a su derecha el principal, que dice "Registrar entrada" o "Registrar salida" según el tipo. Sin ventana de confirmación extra.
